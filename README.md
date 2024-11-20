@@ -16,6 +16,16 @@ also make sure `ffmpeg` is installed
 (open-source multimedia framework used for processing video and audio files (encoding, decoding, etc.)
 - still works without it on single videos but will throw errors (playlists wont work)
 
+## How to Install FFmpeg
+
+**Windows**
+
+- Download the latest FFmpeg static build from the official site: https://ffmpeg.org/download.html.
+  (for example on the build from gyan.dev the `ffmpeg-release-essentials` is sufficent)
+- Extract the files to a folder (e.g., `C:\ffmpeg`).
+- Add the `bin` directory to your system's PATH:
+- Go to Control Panel > System > Advanced system settings > Environment Variables.
+- Find the Path variable, click Edit, and add the path to the `bin` folder (e.g., `C:\ffmpeg\bin`).
 
 
 ## Disclaimer:
