@@ -12,7 +12,9 @@ pip install yt-dlp
 pip install PyQt5 
 ```` 
 
-also make sure `ffmpeg` is installed (still works without but will throw errors)
+also make sure `ffmpeg` is installed 
+(open-source multimedia framework used for processing video and audio files (encoding, decoding, etc.)
+- still works without it on single videos but will throw errors (playlists wont work)
 
 
 
