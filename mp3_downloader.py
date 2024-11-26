@@ -29,11 +29,11 @@ class YouTubeDownloader(QMainWindow):
         self.layout.addWidget(self.url_input)
         
         # Output Directory
-        self.dir_label = QLabel("Download-Verzeichnis:")
+        self.dir_label = QLabel("Choose Download Directory:")
         self.layout.addWidget(self.dir_label)
         self.dir_input = QLineEdit()
         self.layout.addWidget(self.dir_input)
-        self.dir_button = QPushButton("Ordner wählen")
+        self.dir_button = QPushButton("Choose Folder")
         self.dir_button.clicked.connect(self.select_output_dir)
         self.layout.addWidget(self.dir_button)
         
@@ -43,37 +43,37 @@ class YouTubeDownloader(QMainWindow):
         self.layout.addWidget(self.progress_bar)
         
         # Buttons
-        self.download_button = QPushButton("Download starten")
+        self.download_button = QPushButton("Start Download")
         self.download_button.clicked.connect(self.start_download)
         self.layout.addWidget(self.download_button)
         
-        self.quit_button = QPushButton("Beenden")
+        self.quit_button = QPushButton("Close")
         self.quit_button.clicked.connect(self.close)
         self.layout.addWidget(self.quit_button)
     
     def select_output_dir(self):
-        """Öffnet einen Dialog, um das Download-Verzeichnis auszuwählen."""
-        directory = QFileDialog.getExistingDirectory(self, "Download-Verzeichnis auswählen")
+        """Opens Dialoge Window to choose directory"""
+        directory = QFileDialog.getExistingDirectory(self, "choose Download-Directory")
         if directory:
             self.dir_input.setText(directory)
     
     def start_download(self):
-        """Startet den Download in einem separaten Thread."""
+        """Start download in seperate Thread."""
         url = self.url_input.text().strip()
         output_dir = self.dir_input.text().strip()
         
         if not url:
-            QMessageBox.warning(self, "Fehler", "Bitte eine YouTube-URL eingeben!")
+            QMessageBox.warning(self, "Error", "Please enter valid YouTube-URL!")
             return
         if not output_dir:
-            QMessageBox.warning(self, "Fehler", "Bitte ein Download-Verzeichnis angeben!")
+            QMessageBox.warning(self, "Error", "Please choose a valid Download-Directory")
             return
         
         self.download_thread = threading.Thread(target=self.download, args=(url, output_dir))
         self.download_thread.start()
     
     def download(self, url, output_dir):
-        """Führt den Download durch."""
+        """Downloadlogic happens here"""
         self.update_progress(0)
         ydl_opts = {
             'format': 'bestaudio/best',
@@ -92,13 +92,13 @@ class YouTubeDownloader(QMainWindow):
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([url])
             self.update_progress(100)
-            QMessageBox.information(self, "Erfolg", "Download abgeschlossen!")
+            QMessageBox.information(self, "Success", "Download finished!")
         except Exception as e:
-            QMessageBox.critical(self, "Fehler", f"Fehler beim Download:\n{str(e)}")
+            QMessageBox.critical(self, "Error", f"Error Downloading:\n{str(e)}")
             self.update_progress(0)
     
     def progress_hook(self, d):
-        """Wird während des Downloads aufgerufen, um Fortschritt zu aktualisieren."""
+        """This gets called while downloading, representing progress of download"""
         if d['status'] == 'downloading':
             downloaded = d.get('downloaded_bytes', 0)
             total = d.get('total_bytes', 1)
@@ -106,7 +106,7 @@ class YouTubeDownloader(QMainWindow):
             self.update_progress(progress)
     
     def update_progress(self, value):
-        """Aktualisiert die Fortschrittsanzeige."""
+        """Updates progress/status bar"""
         self.progress_bar.setValue(value)
 
 
