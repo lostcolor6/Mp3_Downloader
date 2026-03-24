@@ -71,12 +71,24 @@ class YouTubeDownloader(QMainWindow):
         
         self.download_thread = threading.Thread(target=self.download, args=(url, output_dir))
         self.download_thread.start()
+
+    def get_ffmpeg_location(self):
+        """Use bundled ffmpeg if it exists, otherwise fall back to system PATH."""
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        bundled_bin = os.path.join(
+            base_dir,
+            'ffmpeg',
+            'ffmpeg-2025-01-27-git-959b799c8d-essentials_build',
+            'bin'
+        )
+        return bundled_bin if os.path.isdir(bundled_bin) else None
     
     def download(self, url, output_dir):
         """Downloadlogic happens here"""
         self.update_progress(0)
+        ffmpeg_location = self.get_ffmpeg_location()
         ydl_opts = {
-            'format': 'bestaudio/best',
+            'format': 'bestaudio[ext=m4a]/bestaudio/best',
             'outtmpl': f'{output_dir}/%(title)s.%(ext)s',
             'postprocessors': [
                 {
@@ -86,6 +98,23 @@ class YouTubeDownloader(QMainWindow):
                 },
             ],
             'progress_hooks': [self.progress_hook],
+            'ffmpeg_location': ffmpeg_location,
+            'retries': 10,
+            'fragment_retries': 10,
+            'extractor_retries': 3,
+            'skip_unavailable_fragments': True,
+            'http_headers': {
+                'User-Agent': (
+                    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                    'AppleWebKit/537.36 (KHTML, like Gecko) '
+                    'Chrome/123.0.0.0 Safari/537.36'
+                )
+            },
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['android', 'web']
+                }
+            },
         }
         
         try:
@@ -94,7 +123,15 @@ class YouTubeDownloader(QMainWindow):
             self.update_progress(100)
             QMessageBox.information(self, "Success", "Download finished!")
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error Downloading:\n{str(e)}")
+            error_text = str(e)
+            if 'HTTP Error 403' in error_text or 'Forbidden' in error_text:
+                error_text = (
+                    "YouTube blocked this request (HTTP 403).\n\n"
+                    "Please update yt-dlp to the newest version and try again:\n"
+                    "pip install -U yt-dlp\n\n"
+                    "If it still fails, try again later or test with a different video."
+                )
+            QMessageBox.critical(self, "Error", f"Error Downloading:\n{error_text}")
             self.update_progress(0)
     
     def progress_hook(self, d):
